@@ -24,7 +24,7 @@ if (!program.shift || !program.actionn) {
 }
 
 if (program.output) {
-    if (typeof program.output !== 'String') {
+    if (typeof program.output !== 'string') {
         console.error(`Output path should has String format`);
         process.exit(1);
     }
@@ -36,7 +36,7 @@ if (program.output) {
     });
 }
 if (program.input) {
-    if (typeof program.input !== 'String') {
+    if (typeof program.input !== 'string') {
         console.error(`Input path should has String format`);
         process.exit(1);
     }
