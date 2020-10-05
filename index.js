@@ -20,29 +20,29 @@ const encriptionProcess = program.actionn === 'decode' ? encription.decode : enc
 
 if (!program.shift || !program.actionn) {
     process.stderr.write('Shift and encription type are reqired (-s, -a)');
-    process.exit();
+    process.exit(1);
 }
 
 if (program.output) {
     if (typeof program.output !== 'string') {
-        console.error(`Output path should has String format`);
+        process.stderr.write(`Output path should has String format`);
         process.exit(1);
     }
     fs.access(program.output, (err) => {
         if (err) {
-            console.error(`Output file ${path.resolve(program.output)} does not exist`);
+            process.stderr.write(`Output file ${path.resolve(program.output)} does not exist`);
             process.exit(1);
         }
     });
 }
 if (program.input) {
     if (typeof program.input !== 'string') {
-        console.error(`Input path should has String format`);
+        process.stderr.write(`Input path should has String format`);
         process.exit(1);
     }
     fs.access(program.input, (err) => {
         if (err) {
-            console.error(`Input file ${path.resolve(program.input)} does not exist`);
+            process.stderr.write(`Input file ${path.resolve(program.input)} does not exist`);
             process.exit(1);
         }
     });
