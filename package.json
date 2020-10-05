@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/yoshirolas/caesar-cipher-cli#readme",
   "dependencies": {
+    "commander": "^6.1.0",
     "nodemon": "^2.0.4"
   }
 }

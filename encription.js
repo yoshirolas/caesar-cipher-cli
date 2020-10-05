@@ -57,7 +57,7 @@ const encodeString = (str, shift) => {
         }
         output += String.fromCharCode(outputCharcode);
     }
-    console.log(output);
+    return output;
 };
 
 const decodeString = (str, shift) => {
