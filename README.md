@@ -4,11 +4,15 @@
 
 ### Required options:
 '-s, --shift [Number]', 'a shift'
+
 '-a, --actionn [String]', 'an action encode/decode'
+
 
 ### Addition options:
 '-n, --negative [Boolean]', 'to set negative shift'
+
 '-i, --input [String]', 'an input file'
+
 '-o, --output [String]', 'an output file'
 
 
