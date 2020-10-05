@@ -62,7 +62,7 @@ if (!program.input) {
             fs.appendFileSync(program.output, `${newLineChar}${transformedData}`);
             rl.prompt();
         } else {
-            console.log(transformedData);
+            process.stdout.write(transformedData);
         }
     })
 } else {
