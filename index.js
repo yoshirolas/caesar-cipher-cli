@@ -23,59 +23,72 @@ if (!program.shift || !program.actionn) {
     process.exit(1);
 }
 
-if (program.output) {
-    if (typeof program.output !== 'string') {
-        process.stderr.write(`Output path should has String format`);
-        process.exit(1);
-    }
-    fs.access(program.output, (err) => {
-        if (err) {
-            process.stderr.write(`Output file ${path.resolve(program.output)} does not exist`);
-            process.exit(1);
+const validateIO = (inputPath, outputPath) => {
+    return new Promise((res, rej) => {
+        if (outputPath) {
+            if (typeof outputPath !== 'string') {
+                process.stderr.write(`Output path should has String format`);
+                rej();
+                process.exit(1);
+            }
+            fs.access(outputPath, (err) => {
+                if (err) {
+                    process.stderr.write(`Output file ${path.resolve(outputPath)} does not exist`);
+                    rej();
+                }
+                res();
+            });
         }
+        if (inputPath) {
+            if (typeof inputPath !== 'string') {
+                process.stderr.write(`Input path should has String format`);
+                rej();
+            }
+            fs.access(inputPath, (err) => {
+                if (err) {
+                    process.stderr.write(`Input file ${path.resolve(inputPath)} does not exist`);
+                    rej();
+                }
+                res();
+            });
+        }  
     });
-}
-if (program.input) {
-    if (typeof program.input !== 'string') {
-        process.stderr.write(`Input path should has String format`);
-        process.exit(1);
-    }
-    fs.access(program.input, (err) => {
-        if (err) {
-            process.stderr.write(`Input file ${path.resolve(program.input)} does not exist`);
-            process.exit(1);
-        }
-    });
-}
+};
 
-if (!program.input) {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-    });
-    const newLineChar = process.platform === 'win32' ? '\r\n' : '\n';
-    rl.setPrompt(`Transformed text has been added to output file${newLineChar}`)
-
-    rl.on('line', function(data) {
-        const transformedData = encriptionProcess(data, shift);
-        if (program.output) {
-            fs.appendFileSync(program.output, `${newLineChar}${transformedData}`);
-            rl.prompt();
+validateIO(program.input, program.output)
+    .then(() => {
+        if (!program.input) {
+            const rl = readline.createInterface({
+                input: process.stdin,
+                output: process.stdout,
+            });
+            const newLineChar = process.platform === 'win32' ? '\r\n' : '\n';
+            rl.setPrompt(`Transformed text has been added to output file${newLineChar}`)
+        
+            rl.on('line', function(data) {
+                const transformedData = encriptionProcess(data, shift);
+                if (program.output) {
+                    fs.appendFileSync(program.output, `${newLineChar}${transformedData}`);
+                    rl.prompt();
+                } else {
+                    process.stdout.write(transformedData);
+                }
+            })
         } else {
-            process.stdout.write(transformedData);
+            const outputType = program.output ? fs.createWriteStream(program.output) : process.stdout;
+            const caesarTransform = new StreamCaesarTransform({shift, encriptionProcess});
+            pipeline(
+                fs.createReadStream(program.input),
+                caesarTransform,
+                outputType,
+                err => {
+                    if (err) {
+                        throw Error(err);
+                    }
+                }
+            )
         }
     })
-} else {
-    const outputType = program.output ? fs.createWriteStream(program.output) : process.stdout;
-    const caesarTransform = new StreamCaesarTransform({shift, encriptionProcess});
-    pipeline(
-        fs.createReadStream(program.input),
-        caesarTransform,
-        outputType,
-        err => {
-            if (err) {
-                throw Error(err);
-            }
-        }
-    )
-}
+    .catch(() => {
+        process.exit(1);
+    })
