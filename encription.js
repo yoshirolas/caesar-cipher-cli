@@ -62,7 +62,7 @@ const encodeString = (str, shift) => {
 
 const decodeString = (str, shift) => {
     const negativeShift = 0 - shift;
-    encodeString(str, negativeShift);
+    return encodeString(str, negativeShift);
 };
 
 module.exports = {

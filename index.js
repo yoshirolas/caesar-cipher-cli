@@ -29,7 +29,6 @@ const validateIO = (inputPath, outputPath) => {
             if (typeof outputPath !== 'string') {
                 process.stderr.write(`Output path should has String format`);
                 rej();
-                process.exit(1);
             }
             fs.access(outputPath, (err) => {
                 if (err) {
@@ -55,25 +54,32 @@ const validateIO = (inputPath, outputPath) => {
     });
 };
 
-validateIO(program.input, program.output)
+const createConsoleStream = () => {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+    });
+    const newLineChar = process.platform === 'win32' ? '\r\n' : '\n';
+    rl.setPrompt(`Transformed text has been added to output file${newLineChar}`)
+
+    rl.on('line', function(data) {
+        const transformedData = encriptionProcess(data, shift);
+        if (program.output) {
+            fs.appendFileSync(program.output, `${newLineChar}${transformedData}`);
+            rl.prompt();
+        } else {
+            process.stdout.write(transformedData + newLineChar);
+        }
+    })
+};
+
+if (!program.input && !program.output) {
+    createConsoleStream();
+} else {
+    validateIO(program.input, program.output)
     .then(() => {
         if (!program.input) {
-            const rl = readline.createInterface({
-                input: process.stdin,
-                output: process.stdout,
-            });
-            const newLineChar = process.platform === 'win32' ? '\r\n' : '\n';
-            rl.setPrompt(`Transformed text has been added to output file${newLineChar}`)
-        
-            rl.on('line', function(data) {
-                const transformedData = encriptionProcess(data, shift);
-                if (program.output) {
-                    fs.appendFileSync(program.output, `${newLineChar}${transformedData}`);
-                    rl.prompt();
-                } else {
-                    process.stdout.write(transformedData);
-                }
-            })
+            createConsoleStream();
         } else {
             const outputType = program.output ? fs.createWriteStream(program.output) : process.stdout;
             const caesarTransform = new StreamCaesarTransform({shift, encriptionProcess});
@@ -92,3 +98,4 @@ validateIO(program.input, program.output)
     .catch(() => {
         process.exit(1);
     })
+}
